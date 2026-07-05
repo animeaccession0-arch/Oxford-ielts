@@ -233,15 +233,15 @@ if st.button("Score essay"):
 if word_count == 0:
     band = 0.0
 elif word_count < 100:
-            band = 3.0
+    band = 3.0
 elif word_count < 200:
-            band = 5.0   
+    band = 5.0   
 elif word_count < 250:
-            band = 5.5
+    band = 5.5
 elif word_count < 300:
-            band = 6.0
+    band = 6.0
 else:
-           band = 6.5
+    band = 6.5
 
 
 
