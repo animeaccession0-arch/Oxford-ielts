@@ -236,14 +236,15 @@ if st.button("Score essay"):
     band = 0.0
 elif word_count < 100:
             band = 3.0
-        elif word_count < 200:
-            band = 5.0  
-        elif word_count < 250:
+elif word_count < 200:
+            band = 5.0   
+elif word_count < 250:
             band = 5.5
-        elif word_count < 300:
+elif word_count < 300:
             band = 6.0
-        else:
+else:
            band = 6.5
+
 
 
 st.subheader(f"Estimated IELTS band: {band}")
