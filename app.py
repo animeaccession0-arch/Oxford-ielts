@@ -225,7 +225,7 @@ if st.button("Score essay"):
     m = compute_metrics(essay)
     word_count = m['word_count']
 
-   st.write(Debug)     
+        
         
 # REAL IELTS SCORING
 
