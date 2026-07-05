@@ -229,7 +229,7 @@ if st.button("Score essay"):
         
 # REAL IELTS SCORING
 
-if word_count == 0:
+elif word_count < 0:
     band = 0.0
 elif word_count < 100:
     band = 3.0
