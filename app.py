@@ -248,8 +248,7 @@ else:
 
 
 st.subheader(f"Estimated IELTS band: {band}")
-
-    st.markdown("**Metrics**")
+st.markdown("**Metrics**")
     st.write(
         f"Words: {m['word_count']} — Sentences: {m['sentence_count']} — Avg sentence length: {m['avg_sentence_len']:.1f} words"
     )
