@@ -256,10 +256,10 @@ st.write(
 f"Lexical diversity: {m['lexical_diversity']:.2f} — Long-word ratio: {m['long_word_ratio']:.2f} — Avg word length: {m['avg_word_len']:.2f}"
     )
 
-    tips = generate_tips(m)
-    st.markdown("**Top 3 tips to improve your band**")
-    for i, t in enumerate(tips, 1):
-        st.write(f"{i}. {t}")
+tips = generate_tips(m)
+st.markdown("**Top 3 tips to improve your band**")
+for i, t in enumerate(tips, 1):
+    st.write(f"{i}. {t}")
 
     st.markdown("---")
     st.info("This is a heuristic estimator for quick feedback only. For an official band, submit to an accredited tester or trained examiner.")
