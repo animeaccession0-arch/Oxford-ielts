@@ -221,12 +221,11 @@ if st.button("Score essay"):
     if not is_valid:
         st.session_state.attempt_count += 1
         st.error(f"{msg} \n\nAttempt {st.session_state.attempt_count}/5")
-        st.stop()
-    
+        st.stop()    
     m = compute_metrics(essay)
     word_count = m['word_count']
 
-        
+   st.write(Debug)     
         
 # REAL IELTS SCORING
 
