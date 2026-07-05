@@ -28,7 +28,6 @@ def compute_metrics(text: str):
         "sentence_count": len(sentences),
         "lexical_diversity": len(set(words))/word_count if word_count > 0 else 0
     }
-
 def is_valid_essay(text):
     text_lower = text.lower()
     bad_words = ["ignore", "system", "prompt", "you are", "forget", "instructions", "roleplay", "act as"]
