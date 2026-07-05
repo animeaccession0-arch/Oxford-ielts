@@ -80,7 +80,7 @@ def compute_metrics(text: str):
     long_word_ratio = long_words / word_count
     avg_word_len = sum(len(w) for w in words) / word_count
     return {}
-    }
+    
 
 
 def heuristic_score(metrics: dict) -> float:
