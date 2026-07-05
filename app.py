@@ -59,7 +59,7 @@ if len(tips) == 0:
 tips.append("good structure! now work on grammar and complex sentences for band 7+")
 st.write("**tips to improve.**")
 for tip in tips:
-st. write(f"-{tip}")
+    st. write(f"-{tip}")
 
 
 
