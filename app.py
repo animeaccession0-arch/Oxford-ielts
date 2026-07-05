@@ -45,32 +45,30 @@ def is_valid_essay(text):
 
       
   
-def generate_tips(metrics):   
-    tips = []
-
-if metrics['lexical_diversity'] < 0.5:
-        tips.append("use different words. don't repeat same words")     
+def compute_metrics(text):
+    words = text.split()
+    word_count = len(words)
+    unique_words = set(words)
+    lexical_diversity = len(unique_words) / word_count if word_count > 0 else 0
     
-if len(tips) == 0:
+    metrics = {
+        'word_count': word_count,
+        'lexical_diversity': lexical_diversity,
+        'avg_sentence_len': 0,
+        'grammar_errors': 0
+    }
+    return metrics
+
+def generate_tips(metrics):
+    tips = []
+    
+    if metrics['lexical_diversity'] < 0.5:
+        tips.append("use different words. don't repeat same words")
+    
+    if len(tips) == 0:
         tips.append("good structure! now work on grammar and complex sentences for band 7+")
     
-         
-    
-        
-    
-   
-
-        
-
-
-
-
-tips.append("good structure! now work on grammar and complex sentences for band 7+")
-st.write("**tips to improve.**")
-for tip in tips:
-    st. write(f"-{tip}")
-
-
+    return tips
 
 def compute_metrics(text: str):
     text = preprocess(text)
