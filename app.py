@@ -252,8 +252,8 @@ st.markdown("**Metrics**")
 st.write(
         f"Words: {m['word_count']} — Sentences: {m['sentence_count']} — Avg sentence length: {m['avg_sentence_len']:.1f} words"
     )
-    st.write(
-        f"Lexical diversity: {m['lexical_diversity']:.2f} — Long-word ratio: {m['long_word_ratio']:.2f} — Avg word length: {m['avg_word_len']:.2f}"
+st.write(
+f"Lexical diversity: {m['lexical_diversity']:.2f} — Long-word ratio: {m['long_word_ratio']:.2f} — Avg word length: {m['avg_word_len']:.2f}"
     )
 
     tips = generate_tips(m)
