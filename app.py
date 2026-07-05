@@ -47,7 +47,7 @@ def is_valid_essay(text):
     
 
 
-     if metrics['lexical_diversity'] < 0.5:
+if metrics['lexical_diversity'] < 0.5:
          tips.append("use different words. don't repeat same words")
    
     if len(tips) == 0:
