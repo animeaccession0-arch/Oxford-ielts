@@ -223,23 +223,11 @@ if st.button("Score essay"):
         st.error(f"{msg} \n\nAttempt {st.session_state.attempt_count}/5")
         st.stop()
     
-    m = compute_metrics(essay)  # <-- tera purana code yaha se
+    m = compute_metrics(essay)
     word_count = m['word_count']
 
-
-
-
-
-
-
-
- 
-
-
-
-    
         
-        # REAL IELTS SCORINGif word_count == 0:
+        # REAL IELTS SCORING
     band = 0.0
 elif word_count < 100:
             band = 3.0
