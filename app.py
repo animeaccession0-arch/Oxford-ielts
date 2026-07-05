@@ -232,10 +232,9 @@ if st.button("Score essay"):
 
     
         
-        # REAL IELTS SCORING
-        if word_count == 0:
-            band = 0.0
-        elif word_count < 100:
+        # REAL IELTS SCORINGif word_count == 0:
+    band = 0.0
+elif word_count < 100:
             band = 3.0
         elif word_count < 200:
             band = 5.0  
@@ -244,8 +243,10 @@ if st.button("Score essay"):
         elif word_count < 300:
             band = 6.0
         else:
-            band = 6.5
-    st.subheader(f"Estimated IELTS band: {band}")
+           band = 6.5
+
+
+st.subheader(f"Estimated IELTS band: {band}")
 
     st.markdown("**Metrics**")
     st.write(
