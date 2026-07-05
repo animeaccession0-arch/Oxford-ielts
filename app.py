@@ -9,23 +9,68 @@ st.write("Paste your essay below and click 'Score essay' to get a heuristic band
 
 essay = st.text_area("Your essay", height=360, placeholder="Paste your essay here...")
 
+if 'attempt_count' not in st.session_state:
+    st.session_state.attempt_count = 0
 
 def preprocess(text: str) -> str:
     return re.sub(r"\s+", " ", text.strip())
+
+def compute_metrics(text: str):
+    text = preprocess(text)
+    words = re.findall(r"\b\w+\b", text)
+    sentences = re.split(r'[.!?]+', text)
+    sentences = [s for s in sentences if s.strip()]
+    
+    word_count = len(words)
+    
+    return {
+        "word_count": word_count,
+        "sentence_count": len(sentences),
+        "lexical_diversity": len(set(words))/word_count if word_count > 0 else 0
+    }
+
+def is_valid_essay(text):
+    text_lower = text.lower()
+    bad_words = ["ignore", "system", "prompt", "you are", "forget", "instructions", "roleplay", "act as"]
+    for word in bad_words:
+        if word in text_lower:
+            return False, "Sorry I can't help you with this"
+    if len(text.split()) < 10:
+        return False, "Please enter a proper essay with at least 10 words"
+    if text.strip().endswith("?") or text_lower.startswith(("write", "tell me", "what is", "how to")):
+        return False, "Sorry I can't help you with this. Please paste an IELTS essay only"
+    return True, "ok"
+
+    
+
+
+    
+    
+
+
+tips.append("add 1_2 examples to support your opinion")
+if metrics("lexical_diversity")<0.4:
+tips.append("use different words. don't repeat same words")
+if len(tips)==0:
+tips.append("good structure! now work on grammar and complex sentences for band 7+"):
+st.write("**tips to improve.**")
+for tip in tips:
+st. write(f"-{tip}")
+
 
 
 def compute_metrics(text: str):
     text = preprocess(text)
     words = re.findall(r"\b\w+\b", text)
     if not words:
-        return {
-            "word_count": 0,
-            "sentence_count": 0,
-            "avg_sentence_len": 0.0,
-            "lexical_diversity": 0.0,
-            "long_word_ratio": 0.0,
-            "avg_word_len": 0.0,
-        }
+        return {}
+            
+            
+            
+        
+        
+    
+        
     sentences = [s.strip() for s in re.split(r"[.!?]+", text) if s.strip()]
     word_count = len(words)
     sentence_count = len(sentences) if len(sentences) > 0 else 1
@@ -35,13 +80,7 @@ def compute_metrics(text: str):
     long_words = sum(1 for w in words if len(w) >= 7)
     long_word_ratio = long_words / word_count
     avg_word_len = sum(len(w) for w in words) / word_count
-    return {
-        "word_count": word_count,
-        "sentence_count": sentence_count,
-        "avg_sentence_len": avg_sentence_len,
-        "lexical_diversity": lexical_diversity,
-        "long_word_ratio": long_word_ratio,
-        "avg_word_len": avg_word_len,
+    return {}
     }
 
 
@@ -160,8 +199,48 @@ def generate_tips(metrics: dict):
 
 
 if st.button("Score essay"):
-    m = compute_metrics(essay)
-    band = heuristic_score(m)
+  
+    # SECURITY CHECK 1: 5 attempts cross
+    if st.session_state.attempt_count >= 5:
+        st.error("🚫 Too many invalid attempts. Access blocked.")
+        st.stop()
+    
+    # SECURITY CHECK 2: Valid essay or not
+    is_valid, msg = is_valid_essay(essay)
+    if not is_valid:
+        st.session_state.attempt_count += 1
+        st.error(f"{msg} \n\nAttempt {st.session_state.attempt_count}/5")
+        st.stop()
+    
+    m = compute_metrics(essay)  # <-- tera purana code yaha se
+    word_count = m['word_count']
+
+
+
+
+
+
+
+
+ 
+
+
+
+    
+        
+        # REAL IELTS SCORING
+        if word_count == 0:
+            band = 0.0
+        elif word_count < 100:
+            band = 3.0
+        elif word_count < 200:
+            band = 5.0  
+        elif word_count < 250:
+            band = 5.5
+        elif word_count < 300:
+            band = 6.0
+        else:
+            band = 6.5
     st.subheader(f"Estimated IELTS band: {band}")
 
     st.markdown("**Metrics**")
