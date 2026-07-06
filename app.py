@@ -210,8 +210,24 @@ def generate_tips(metrics: dict):
 
 
 if st.button("Score essay"):
-  
-    # SECURITY CHECK 1: 10 attempts cross
+ if st.button("Score Essay"):
+    m = compute_metrics(essay)  # <- andar
+    word_count = m['word_count'] # <- andar
+    
+    # band wala if-elif
+    
+    tips = generate_tips(m) # <- andar
+    for i, t in enumerate(tips, 1): # <- andar
+        st.write(f"{i}. {t}") 
+    m = compute_metrics(essay)
+    word_count = m['word_count']
+    sentence_count = m['sentence_count']
+    avg_sentence_len = m['avg_sentence_len']
+    lexical_diversity = m['lexical_diversity']
+    long_word_ratio = m['long_word_ratio']
+    avg_word_len = m['avg_word_len']
+   
+     # SECURITY CHECK 1: 10 attempts cross
     if st.session_state.attempt_count >= 10:
         st.error("🚫 Too many invalid attempts. Access blocked.")
         st.stop()
@@ -222,15 +238,7 @@ if st.button("Score essay"):
         st.session_state.attempt_count += 1
         st.error(f"{msg} \n\nAttempt {st.session_state.attempt_count}/5")
         st.stop()    
-    m = compute_metrics(essay)
-    word_count = m['word_count']
-    m = compute_metrics(essay)
-    word_count = m['word_count']
-    sentence_count = m['sentence_count']
-    avg_sentence_len = m['avg_sentence_len']
-    lexical_diversity = m['lexical_diversity']
-    long_word_ratio = m['long_word_ratio']
-    avg_word_len = m['avg_word_len']
+    
         
         # --- WORD COUNT + SENTENCE COUNT ---
 word_count = len(essay.split())
