@@ -268,7 +268,7 @@ st.write(
         f"Words: {word_count} - Sentences: {sentence_count} - Avg sentence length: {avg_sentence_len:.1f} words"
     )
 st.write(
-f"Lexical diversity: {m['lexical_diversity']:.2f} — Long-word ratio: {m['long_word_ratio']:.2f} — Avg word length: {m['avg_word_len']:.2f}"
+f"Lexical diversity: {lexical_diversity}:.2f} — Long-word ratio: {long_word_ratio}:.2f} — Avg word length: {avg_word_len}:.2f}"
     )
 
 tips = generate_tips(m)
