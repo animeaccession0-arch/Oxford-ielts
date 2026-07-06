@@ -240,7 +240,7 @@ f"Lexical diversity: {lexical_diversity:.2f} - Long-word ratio: {long_word_ratio
 # Upar function
 st.markdown("---")
 st.info("This is a heuristic estimator for quick feedback only. For an official band, submit to an accredited tester or trained examiner.")
-else: # <- ye wala if st.button ka else hai
+
 st.write("Click 'Score essay' when you have pasted your essay.")
             
         # --- WORD COUNT + SENTENCE COUNT ---
