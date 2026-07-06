@@ -212,7 +212,17 @@ def generate_tips(metrics: dict):
 if st.button("Score essay"):
     m = compute_metrics(essay)  # <- andar
     word_count = m['word_count'] # <- andar
+# SECURITY CHECK 1: 10 attempts cross
+    if st.session_state.attempt_count >= 10:
+        st.error("🚫 Too many invalid attempts. Access blocked.")
+        st.stop()
     
+    # SECURITY CHECK 2: Valid essay or not
+    is_valid, msg = is_valid_essay(essay)
+    if not is_valid:
+        st.session_state.attempt_count += 1
+        st.error(f"{msg} \n\nAttempt {st.session_state.attempt_count}/5")
+        st.stop()    
     # band wala if-elif
     
     tips = generate_tips(m) # <- andar
@@ -269,16 +279,6 @@ lexical_diversity = len(set(essay.split())) / word_count if word_count > 0 else 
 long_word_ratio = len([w for w in essay.split() if len(w) > 6]) / word_count if word_count > 0 else 0
 avg_word_len = sum(len(w) for w in essay.split()) / word_count if word_count > 0 else 0
 
-# SECURITY CHECK 1: 10 attempts cross
-    if st.session_state.attempt_count >= 10:
-        st.error("🚫 Too many invalid attempts. Access blocked.")
-        st.stop()
     
-    # SECURITY CHECK 2: Valid essay or not
-    is_valid, msg = is_valid_essay(essay)
-    if not is_valid:
-        st.session_state.attempt_count += 1
-        st.error(f"{msg} \n\nAttempt {st.session_state.attempt_count}/5")
-        st.stop()    
 
 st.markdown("\n---\nMade with ❤️ — Oxford IELTS demo (heuristic scorer).")
