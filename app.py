@@ -270,7 +270,7 @@ avg_word_len = sum(len(w) for w in essay.split()) / word_count if word_count > 0
 st.subheader(f"Estimated IELTS band: {band}")
 
 st.subheader("Tips to Improve:")
-for i, t in enumerate(tips, 1):
+for i, t in enumerate(m):
     st.write(f"{i}. {t}")
 st.markdown("**Metrics**")
 st.write(
