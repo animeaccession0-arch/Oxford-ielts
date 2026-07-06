@@ -236,7 +236,7 @@ if st.button("Score essay"):
     st.subheader(f"Estimated IELTS band: {band}")
     tips = generate_tips(m) # <- andar
 st.subheader("Tips to Improve:")
-for i, t in enumerate(1):
+for i, t in enumerate(tips, 1):
     st.write(f"{i}. {t}")
 st.markdown("**Metrics**")
 st.write(
