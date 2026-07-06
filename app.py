@@ -238,7 +238,7 @@ if st.button("Score essay"):
     st.subheader(f"Estimated IELTS band: {band}")
 
 st.subheader("Tips to Improve:")
-for i, t in enumerate():
+for i, t in enumerate(tips, 1):
     st.write(f"{i}. {t}")
 st.markdown("**Metrics**")
 st.write(
