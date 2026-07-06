@@ -248,6 +248,10 @@ else:
 
 avg_sentence_len = word_count / sentence_count if sentence_count > 0 else 0
 
+lexical_diversity = len(set(essay.split())) / word_count if word_count > 0 else 0
+long_word_ratio = len([w for w in essay.split() if len(w) > 6]) / word_count if word_count > 0 else 0
+avg_word_len = sum(len(w) for w in essay.split()) / word_count if word_count > 0 else 0
+
     
 
     
