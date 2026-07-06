@@ -280,15 +280,6 @@ st.write(
 f"Lexical diversity: {lexical_diversity:.2f} - Long-word ratio: {long_word_ratio:.2f} - Avg word length: {avg_word_len:.2f}"
     )
 # Upar function
-def generate_tips(word_count, lexical_diversity, avg_sentence_len):
-    ...
-
-# Neeche line 278 pe call
-tips = generate_tips(word_count, lexical_diversity, avg_sentence_len)
-tips = generate_tips(word_count, lexical_diversity, avg_sentence_len)
-st.markdown("**Top 3 tips to improve your band**")
-for i, t in enumerate(tips, 1):
-    st.write(f"{i}. {t}")
 
     st.markdown("---")
     st.info("This is a heuristic estimator for quick feedback only. For an official band, submit to an accredited tester or trained examiner.")
