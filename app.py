@@ -234,7 +234,7 @@ if st.button("Score essay"):
     long_word_ratio = m['long_word_ratio']
     avg_word_len = m['avg_word_len']
     st.subheader(f"Estimated IELTS band: {band}")
-tips = generate_tips(m) # <- andar
+    tips = generate_tips(m) # <- andar
 st.subheader("Tips to Improve:")
 for i, t in enumerate(1):
     st.write(f"{i}. {t}")
