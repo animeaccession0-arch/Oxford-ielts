@@ -224,11 +224,9 @@ if st.button("Score essay"):
         st.error(f"{msg} \n\nAttempt {st.session_state.attempt_count}/5")
         st.stop()    
     # band wala if-elif
-    
-    tips = generate_tips(m) # <- andar
+    m = compute_metrics(essay)
     for i, t in enumerate(tips, 1): # <- andar
         st.write(f"{i}. {t}") 
-    m = compute_metrics(essay)
     word_count = m['word_count']
     sentence_count = m['sentence_count']
     avg_sentence_len = m['avg_sentence_len']
@@ -236,7 +234,7 @@ if st.button("Score essay"):
     long_word_ratio = m['long_word_ratio']
     avg_word_len = m['avg_word_len']
     st.subheader(f"Estimated IELTS band: {band}")
-
+tips = generate_tips(m) # <- andar
 st.subheader("Tips to Improve:")
 for i, t in enumerate(1):
     st.write(f"{i}. {t}")
