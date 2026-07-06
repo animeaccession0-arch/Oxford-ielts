@@ -228,19 +228,35 @@ if st.button("Score essay"):
         
         
 # REAL IELTS SCORING
+sentence_count = len([s for s in essay.split('.') if s.strip()])
 
-elif word_count < 0:
+if word_count == 0:
     band = 0.0
+elif sentence_count < 10:  # <- ye naya add kiya
+    band = 1.5
 elif word_count < 100:
     band = 3.0
 elif word_count < 200:
-    band = 5.0   
+    band = 5.0
 elif word_count < 250:
     band = 5.5
 elif word_count < 300:
     band = 6.0
 else:
     band = 6.5
+
+
+    
+
+    
+
+      
+
+    
+
+    
+
+    
 
 
 
