@@ -231,11 +231,11 @@ if st.button("Score essay"):
     long_word_ratio = m['long_word_ratio']
     avg_word_len = m['avg_word_len']
     if word_count < 200:    
-    band = 5.0
+       band = 5.0
 elif word_count < 250:
-    band = 6.0
+       band = 6.0
 else:
-    band = 7.0
+       band = 7.0
 
 st.subheader(f"Estimated IELTS band: {band}")
 st.subheader("Tips to Improve:")
