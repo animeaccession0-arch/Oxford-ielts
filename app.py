@@ -225,7 +225,7 @@ if st.button("Score essay"):
     lexical_diversity = m['lexical_diversity']
     long_word_ratio = m['long_word_ratio']
     avg_word_len = m['avg_word_len']
-   st.subheader(f"Estimated IELTS band: {band}")
+    st.subheader(f"Estimated IELTS band: {band}")
 
 st.subheader("Tips to Improve:")
 for i, t in enumerate(m):
