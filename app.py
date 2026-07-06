@@ -252,21 +252,12 @@ lexical_diversity = len(set(essay.split())) / word_count if word_count > 0 else 
 long_word_ratio = len([w for w in essay.split() if len(w) > 6]) / word_count if word_count > 0 else 0
 avg_word_len = sum(len(w) for w in essay.split()) / word_count if word_count > 0 else 0
 
-    
-
-    
-
-      
-
-    
-
-    
-
-    
-
-
 
 st.subheader(f"Estimated IELTS band: {band}")
+
+st.subheader("Tips to Improve:")
+for i, t in enumerate(tips, 1):
+    st.write(f"{i}. {t}")
 st.markdown("**Metrics**")
 st.write(
         f"Words: {word_count} - Sentences: {sentence_count} - Avg sentence length: {avg_sentence_len:.1f} words"
