@@ -1,285 +1,92 @@
 import streamlit as st
 import re
-from collections import Counter
 
-st.set_page_config(page_title="Oxford IELTS Essay Scorer", layout="centered")
-
-st.title("Oxford IELTS — Essay Scorer (demo)")
-st.write("Paste your essay below and click 'Score essay' to get a heuristic band score and writing tips.")
-
-essay = st.text_area("Your essay", height=360, placeholder="Paste your essay here...")
+st.set_page_config(page_title="Oxford IELTS Scorer", layout="centered")
+st.title("📝 Oxford IELTS Essay Scorer")
 
 if 'attempt_count' not in st.session_state:
     st.session_state.attempt_count = 0
 
-def preprocess(text: str) -> str:
-    return re.sub(r"\s+", " ", text.strip())
+essay = st.text_area("Enter your essay here:", height=300, placeholder="Write minimum 50 words...")
 
-def compute_metrics(text: str):
-    text = preprocess(text)
-    words = re.findall(r"\b\w+\b", text)
-    sentences = re.split(r'[.!?]+', text)
-    sentences = [s for s in sentences if s.strip()]
-    
-    word_count = len(words)
-    
-    return {
-        "word_count": word_count,
-        "sentence_count": len(sentences),
-        "lexical_diversity": len(set(words))/word_count if word_count > 0 else 0
-    }
-def is_valid_essay(text):
-    text_lower = text.lower()
-    bad_words = ["ignore", "system", "prompt", "you are", "forget", "instructions", "roleplay", "act as"]
-    for word in bad_words:
-        if word in text_lower:
-            return False, "Sorry I can't help you with this"
-    if len(text.split()) < 10:
-        return False, "Please enter a proper essay with at least 10 words"
-    if text.strip().endswith("?") or text_lower.startswith(("write", "tell me", "what is", "how to")):
-        return False, "Sorry I can't help you with this. Please paste an IELTS essay only"
-    return True, "ok"
-
-    
-
-
-      
-  
 def compute_metrics(text):
-    words = text.split()
+    words = re.findall(r'\w+', text.lower())
+    sentences = re.split(r'[.!?]+', text)
+    sentences = [s.strip() for s in sentences if s.strip()]
     word_count = len(words)
-    unique_words = set(words)
-    lexical_diversity = len(unique_words) / word_count if word_count > 0 else 0
-    
-    metrics = {
+    sentence_count = len(sentences)
+    avg_sentence_len = word_count / sentence_count if sentence_count > 0 else 0
+    unique_words = len(set(words))
+    lexical_diversity = unique_words / word_count if word_count > 0 else 0
+    long_words = [w for w in words if len(w) > 6]
+    long_word_ratio = len(long_words) / word_count if word_count > 0 else 0
+    avg_word_len = sum(len(w) for w in words) / word_count if word_count > 0 else 0
+    return {
         'word_count': word_count,
+        'sentence_count': sentence_count,
+        'avg_sentence_len': avg_sentence_len,
         'lexical_diversity': lexical_diversity,
-        'avg_sentence_len': 0,
-        'grammar_errors': 0
+        'long_word_ratio': long_word_ratio,
+        'avg_word_len': avg_word_len
     }
-    return metrics
 
-def generate_tips(metrics):
+def calculate_band(m):
+    band = 5.0
+    if m['word_count'] >= 250: band += 0.5
+    if m['word_count'] >= 300: band += 0.5
+    if m['avg_sentence_len'] >= 15: band += 0.5
+    if m['lexical_diversity'] >= 0.5: band += 0.5
+    if m['long_word_ratio'] >= 0.15: band += 0.5
+    return min(round(band * 2) / 2, 9.0)
+
+def generate_tips(m):
     tips = []
-    
-    if metrics['lexical_diversity'] < 0.5:
-        tips.append("use different words. don't repeat same words")
-    
-    if len(tips) == 0:
-        tips.append("good structure! now work on grammar and complex sentences for band 7+")
-    
+    if m['word_count'] < 250:
+        tips.append(("Task Response", "Write at least 250 words.", "Example: Instead of 180 words, add 1 more body paragraph with 2-3 examples."))
+    if m['avg_sentence_len'] < 15:
+        tips.append(("Grammar", "Use complex sentences with connectors.", "Example: 'I agree. It is good.' → 'I agree because it provides many benefits such as...'"))
+    if m['lexical_diversity'] < 0.5:
+        tips.append(("Vocabulary", "Avoid repeating same words. Use synonyms.", "Example: Instead of 'good' 5 times, use 'beneficial, effective, positive, advantageous'"))
+    if m['long_word_ratio'] < 0.15:
+        tips.append(("Lexical Resource", "Use less common academic words.", "Example: 'big problem' → 'significant issue', 'help' → 'facilitate'"))
+    if not tips:
+        tips.append(("Overall", "Great job! Your essay is strong.", "Example: Keep practicing with timed writing to maintain this level."))
     return tips
 
-def compute_metrics(text: str):
-    text = preprocess(text)
-    words = re.findall(r"\b\w+\b", text)
-    if not words:
-        return {}
-            
-            
-            
-        
-        
-    
-        
-    sentences = [s.strip() for s in re.split(r"[.!?]+", text) if s.strip()]
-    word_count = len(words)
-    sentence_count = len(sentences) if len(sentences) > 0 else 1
-    avg_sentence_len = word_count / sentence_count
-    unique_words = len(set(w.lower() for w in words))
-    lexical_diversity = unique_words / word_count
-    long_words = sum(1 for w in words if len(w) >= 7)
-    long_word_ratio = long_words / word_count
-    avg_word_len = sum(len(w) for w in words) / word_count
-    return {}
-    
-
-
-def heuristic_score(metrics: dict) -> float:
-    # Calculate a 0-100 raw score from heuristics, then map to 0-9 band
-    raw = 0.0
-
-    # Length: prefer 250-400 words for a full response
-    wc = metrics["word_count"]
-    if wc >= 350:
-        raw += 20
-    elif wc >= 250:
-        raw += 16
-    elif wc >= 200:
-        raw += 12
-    elif wc >= 150:
-        raw += 8
-    elif wc >= 100:
-        raw += 4
-    else:
-        raw += 0
-
-    # Sentence complexity: avg sentence length between 12-24 is OK
-    asl = metrics["avg_sentence_len"]
-    if 12 <= asl <= 24:
-        raw += 20
-    elif 8 <= asl < 12 or 24 < asl <= 30:
-        raw += 12
-    else:
-        raw += 6
-
-    # Lexical diversity
-    ld = metrics["lexical_diversity"]
-    if ld >= 0.55:
-        raw += 25
-    elif ld >= 0.45:
-        raw += 18
-    elif ld >= 0.35:
-        raw += 10
-    else:
-        raw += 4
-
-    # Use of longer (academic) words
-    lwr = metrics["long_word_ratio"]
-    if lwr >= 0.12:
-        raw += 20
-    elif lwr >= 0.09:
-        raw += 14
-    elif lwr >= 0.06:
-        raw += 8
-    else:
-        raw += 2
-
-    # avg word length small bonus
-    awl = metrics["avg_word_len"]
-    if awl >= 5.0:
-        raw += 5
-    elif awl >= 4.5:
-        raw += 3
-
-    # Clamp raw to 0-100
-    raw = max(0.0, min(100.0, raw))
-
-    # Map to IELTS band roughly: 0-9 (use thresholds)
-    # 0-29 -> <=4.0, 30-39 -> 4.5, 40-49 -> 5.0-5.5, 50-59 -> 6.0-6.5, 60-74 -> 7.0-7.5, 75-89 -> 8.0-8.5, 90+ -> 9.0
-    if raw >= 90:
-        band = 9.0
-    elif raw >= 75:
-        band = 8.0 if raw < 82 else 8.5
-    elif raw >= 60:
-        band = 7.5 if raw >= 68 else 7.0
-    elif raw >= 50:
-        band = 6.5 if raw >= 55 else 6.0
-    elif raw >= 40:
-        band = 5.5 if raw >= 45 else 5.0
-    elif raw >= 30:
-        band = 4.5
-    elif raw >= 10:
-        band = 4.0
-    else:
-        band = 3.0
-
-    return band
-
-
-def generate_tips(metrics: dict):
-    tips = []
-    wc = metrics["word_count"]
-    ld = metrics["lexical_diversity"]
-    asl = metrics["avg_sentence_len"]
-    lwr = metrics["long_word_ratio"]
-
-    # Tip 1: content/length
-    if wc < 250:
-        tips.append("Expand your essay with more relevant ideas and examples to reach ~250–400 words; this helps develop coherence and task response.")
-    else:
-        tips.append("Your length is good — focus on developing ideas clearly and supporting them with examples.")
-
-    # Tip 2: vocabulary
-    if ld < 0.4:
-        tips.append("Work on vocabulary variety: paraphrase, use synonyms and topic-specific words to increase lexical diversity.")
-    elif lwr < 0.08:
-        tips.append("Incorporate more precise/academic words (avoid repeating simple words) to raise the level of expression.")
-    else:
-        tips.append("Good range of vocabulary — keep using varied and precise words.")
-
-    # Tip 3: sentence structure
-    if asl < 10:
-        tips.append("Try combining short sentences and using complex structures (subordinate clauses) for better cohesion and grammar demonstration.")
-    elif asl > 30:
-        tips.append("Some sentences are very long — shorten or split them to improve clarity and reduce risk of grammar errors.")
-    else:
-        tips.append("Aim for a mix of simple and complex sentences; use linking words to improve flow.")
-
-    return tips
-
+def is_valid_essay(text):
+    if len(text.strip()) < 50:
+        return False, "Essay too short. Minimum 50 characters required."
+    if len(re.findall(r'\w+', text)) < 20:
+        return False, "Essay too short. Minimum 20 words required."
+    return True, "OK"
 
 if st.button("Score essay"):
-# SECURITY CHECK 1: 10 attempts cross
     if st.session_state.attempt_count >= 10:
-        st.error("🚫 Too many invalid attempts. Access blocked.")
+        st.error("🚫 Too many invalid attempts. Please refresh page.")
         st.stop()
-    
-    # SECURITY CHECK 2: Valid essay or not
+
     is_valid, msg = is_valid_essay(essay)
     if not is_valid:
         st.session_state.attempt_count += 1
-        st.error(f"{msg} \n\nAttempt {st.session_state.attempt_count}/5")
-        st.stop()    
-    # band wala if-elif
-    m = compute_metrics(essay)
-    tips = generate_tips(m) # <- andar
-    word_count = m['word_count']
-    sentence_count = m['sentence_count']
-    avg_sentence_len = m['avg_sentence_len']
-    lexical_diversity = m['lexical_diversity']
-    long_word_ratio = m['long_word_ratio']
-    avg_word_len = m['avg_word_len']
-    if word_count < 200:    
-       band = 5.0
-elif word_count < 250:
-       band = 6.0
-else:
-       band = 7.0
-
-st.subheader(f"Estimated IELTS band: {band}")
-st.subheader("Tips to Improve:")
-for i, t in enumerate(tips, 1):
-    st.write(f"{i}. {t}")
-st.markdown("**Metrics**")
-st.write(
-        f"Words: {word_count} - Sentences: {sentence_count} - Avg sentence length: {avg_sentence_len:.1f} words"
-    )
-st.write(
-f"Lexical diversity: {lexical_diversity:.2f} - Long-word ratio: {long_word_ratio:.2f} - Avg word length: {avg_word_len:.2f}"
-    )
-# Upar function
-st.markdown("---")
-st.info("This is a heuristic estimator for quick feedback only. For an official band, submit to an accredited tester or trained examiner.")
-
-st.write("Click 'Score essay' when you have pasted your essay.")
-            
-        # --- WORD COUNT + SENTENCE COUNT ---
-word_count = len(essay.split())
-sentence_count = len([s for s in essay.split('.') if s.strip()])
-
-# --- REAL IELTS SCORING ---
-if word_count == 0:
-    band = 0.0
-elif sentence_count < 10:
-    band = 1.5
-elif word_count < 100:
-    band = 3.0
-elif word_count < 200:
-    band = 5.0
-elif word_count < 250:
-    band = 5.5
-elif word_count < 300:
-    band = 6.0
-else:
-    band = 6.5
-
-avg_sentence_len = word_count / sentence_count if sentence_count > 0 else 0
-
-lexical_diversity = len(set(essay.split())) / word_count if word_count > 0 else 0
-long_word_ratio = len([w for w in essay.split() if len(w) > 6]) / word_count if word_count > 0 else 0
-avg_word_len = sum(len(w) for w in essay.split()) / word_count if word_count > 0 else 0
-
+        st.error(f"❌ {msg} \n\nAttempt {st.session_state.attempt_count}/10")
+        st.stop()
     
+    m = compute_metrics(essay)
+    band = calculate_band(m)
+    tips = generate_tips(m)
+    
+    st.success(f"### Estimated IELTS Band: {band}")
+    
+    col1, col2, col3 = st.columns(3)
+    col1.metric("Word Count", m['word_count'])
+    col2.metric("Sentences", m['sentence_count'])
+    col3.metric("Avg Sentence Length", f"{m['avg_sentence_len']:.1f}")
 
-st.markdown("\n---\nMade with ❤️ — Oxford IELTS demo (heuristic scorer).")
+    st.subheader("📈 Tips to Improve with Examples:")
+    for i, (category, tip, example) in enumerate(tips, 1):
+        st.markdown(f"**{i}. {category}:** {tip}")
+        st.info(f"💡 {example}")
+
+
+
+st.markdown("\n---\nMade with ❤️ — Oxford IELTS ESSAY TESTER (heuristic scorer).")
