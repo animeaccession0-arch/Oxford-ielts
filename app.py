@@ -230,8 +230,7 @@ if st.button("Score essay"):
     lexical_diversity = m['lexical_diversity']
     long_word_ratio = m['long_word_ratio']
     avg_word_len = m['avg_word_len']
-
-if word_count < 200:
+    if word_count < 200:    
     band = 5.0
 elif word_count < 250:
     band = 6.0
