@@ -226,15 +226,21 @@ if st.button("Score essay"):
     # band wala if-elif
     m = compute_metrics(essay)
 tips = generate_tips(m) # <- andar
-    for i, t in enumerate(tips, 1): # <- andar
-        st.write(f"{i}. {t}") 
     word_count = m['word_count']
     sentence_count = m['sentence_count']
     avg_sentence_len = m['avg_sentence_len']
     lexical_diversity = m['lexical_diversity']
     long_word_ratio = m['long_word_ratio']
     avg_word_len = m['avg_word_len']
-    st.subheader(f"Estimated IELTS band: {band}")
+
+if word_count < 200:
+    band = 5.0
+elif word_count < 250:
+    band = 6.0
+else:
+    band = 7.0
+
+st.subheader(f"Estimated IELTS band: {band}")
 st.subheader("Tips to Improve:")
 for i, t in enumerate(tips, 1):
     st.write(f"{i}. {t}")
