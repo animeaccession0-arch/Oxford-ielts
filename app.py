@@ -265,7 +265,7 @@ avg_sentence_len = word_count / sentence_count if sentence_count > 0 else 0
 st.subheader(f"Estimated IELTS band: {band}")
 st.markdown("**Metrics**")
 st.write(
-        f"Words: {m['word_count']} - Sentences: {m['sentence_count']} - Avg sentence length: {avg_sentence_len:.1f} words"
+        f"Words: {word_count} - Sentences: {sentence_count} - Avg sentence length: {avg_sentence_len:.1f} words"
     )
 st.write(
 f"Lexical diversity: {m['lexical_diversity']:.2f} — Long-word ratio: {m['long_word_ratio']:.2f} — Avg word length: {m['avg_word_len']:.2f}"
