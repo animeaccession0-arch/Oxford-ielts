@@ -225,20 +225,25 @@ if st.button("Score essay"):
     lexical_diversity = m['lexical_diversity']
     long_word_ratio = m['long_word_ratio']
     avg_word_len = m['avg_word_len']
-   
-     # SECURITY CHECK 1: 10 attempts cross
-    if st.session_state.attempt_count >= 10:
-        st.error("🚫 Too many invalid attempts. Access blocked.")
-        st.stop()
-    
-    # SECURITY CHECK 2: Valid essay or not
-    is_valid, msg = is_valid_essay(essay)
-    if not is_valid:
-        st.session_state.attempt_count += 1
-        st.error(f"{msg} \n\nAttempt {st.session_state.attempt_count}/5")
-        st.stop()    
-    
-        
+   st.subheader(f"Estimated IELTS band: {band}")
+
+st.subheader("Tips to Improve:")
+for i, t in enumerate(m):
+    st.write(f"{i}. {t}")
+st.markdown("**Metrics**")
+st.write(
+        f"Words: {word_count} - Sentences: {sentence_count} - Avg sentence length: {avg_sentence_len:.1f} words"
+    )
+st.write(
+f"Lexical diversity: {lexical_diversity:.2f} - Long-word ratio: {long_word_ratio:.2f} - Avg word length: {avg_word_len:.2f}"
+    )
+# Upar function
+st.markdown("---")
+st.info("This is a heuristic estimator for quick feedback only. For an official band, submit to an accredited tester or trained examiner.")
+
+else: # <- ye wala if st.button ka else hai
+st.write("Click 'Score essay' when you have pasted your essay.")
+            
         # --- WORD COUNT + SENTENCE COUNT ---
 word_count = len(essay.split())
 sentence_count = len([s for s in essay.split('.') if s.strip()])
@@ -265,25 +270,16 @@ lexical_diversity = len(set(essay.split())) / word_count if word_count > 0 else 
 long_word_ratio = len([w for w in essay.split() if len(w) > 6]) / word_count if word_count > 0 else 0
 avg_word_len = sum(len(w) for w in essay.split()) / word_count if word_count > 0 else 0
 
-
-st.subheader(f"Estimated IELTS band: {band}")
-
-st.subheader("Tips to Improve:")
-for i, t in enumerate(m):
-    st.write(f"{i}. {t}")
-st.markdown("**Metrics**")
-st.write(
-        f"Words: {word_count} - Sentences: {sentence_count} - Avg sentence length: {avg_sentence_len:.1f} words"
-    )
-st.write(
-f"Lexical diversity: {lexical_diversity:.2f} - Long-word ratio: {long_word_ratio:.2f} - Avg word length: {avg_word_len:.2f}"
-    )
-# Upar function
-st.markdown("---")
-st.info("This is a heuristic estimator for quick feedback only. For an official band, submit to an accredited tester or trained examiner.")
-if st.button("score essay"):
-else: # <- ye wala if st.button ka else hai
-st.write("Click 'Score essay' when you have pasted your essay.")
-
+# SECURITY CHECK 1: 10 attempts cross
+    if st.session_state.attempt_count >= 10:
+        st.error("🚫 Too many invalid attempts. Access blocked.")
+        st.stop()
+    
+    # SECURITY CHECK 2: Valid essay or not
+    is_valid, msg = is_valid_essay(essay)
+    if not is_valid:
+        st.session_state.attempt_count += 1
+        st.error(f"{msg} \n\nAttempt {st.session_state.attempt_count}/5")
+        st.stop()    
 
 st.markdown("\n---\nMade with ❤️ — Oxford IELTS demo (heuristic scorer).")
