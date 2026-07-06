@@ -211,8 +211,8 @@ def generate_tips(metrics: dict):
 
 if st.button("Score essay"):
   
-    # SECURITY CHECK 1: 5 attempts cross
-    if st.session_state.attempt_count >= 5:
+    # SECURITY CHECK 1: 10 attempts cross
+    if st.session_state.attempt_count >= 10:
         st.error("🚫 Too many invalid attempts. Access blocked.")
         st.stop()
     
@@ -226,13 +226,14 @@ if st.button("Score essay"):
     word_count = m['word_count']
 
         
-        
-# REAL IELTS SCORING
+        # --- WORD COUNT + SENTENCE COUNT ---
+word_count = len(essay.split())
 sentence_count = len([s for s in essay.split('.') if s.strip()])
 
+# --- REAL IELTS SCORING ---
 if word_count == 0:
     band = 0.0
-elif sentence_count < 10:  # <- ye naya add kiya
+elif sentence_count < 10:
     band = 1.5
 elif word_count < 100:
     band = 3.0
@@ -244,6 +245,7 @@ elif word_count < 300:
     band = 6.0
 else:
     band = 6.5
+
 
 
     
