@@ -275,7 +275,7 @@ st.write(
 f"Lexical diversity: {lexical_diversity:.2f} - Long-word ratio: {long_word_ratio:.2f} - Avg word length: {avg_word_len:.2f}"
     )
 
-tips = generate_tips(m)
+tips = generate_tips(word_count, lexical_diversity, avg_sentence_len):
 st.markdown("**Top 3 tips to improve your band**")
 for i, t in enumerate(tips, 1):
     st.write(f"{i}. {t}")
