@@ -224,7 +224,7 @@ if st.button("Score essay"):
         st.stop()    
     m = compute_metrics(essay)
     word_count = m['word_count']
-        m = compute_metrics(essay)
+    m = compute_metrics(essay)
     word_count = m['word_count']
     sentence_count = m['sentence_count']
     avg_sentence_len = m['avg_sentence_len']
