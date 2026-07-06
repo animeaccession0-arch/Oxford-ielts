@@ -280,11 +280,11 @@ st.write(
 f"Lexical diversity: {lexical_diversity:.2f} - Long-word ratio: {long_word_ratio:.2f} - Avg word length: {avg_word_len:.2f}"
     )
 # Upar function
+st.markdown("---")
+st.info("This is a heuristic estimator for quick feedback only. For an official band, submit to an accredited tester or trained examiner.")
 
-    st.markdown("---")
-    st.info("This is a heuristic estimator for quick feedback only. For an official band, submit to an accredited tester or trained examiner.")
 else:
-    st.write("Click 'Score essay' when you have pasted your essay.")
+st.write("Click 'Score essay' when you have pasted your essay.")
 
 
 st.markdown("\n---\nMade with ❤️ — Oxford IELTS demo (heuristic scorer).")
