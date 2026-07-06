@@ -224,8 +224,7 @@ if st.button("Score essay"):
         st.error(f"{msg} \n\nAttempt {st.session_state.attempt_count}/5")
         st.stop()    
     # band wala if-elif
-    m = compute_metrics(essay)
-tips = generate_tips(m) # <- andar
+    m = compute_metrics(essay)tips = generate_tips(m) # <- andar
     word_count = m['word_count']
     sentence_count = m['sentence_count']
     avg_sentence_len = m['avg_sentence_len']
