@@ -227,7 +227,7 @@ if st.button("Score essay"):
     word_count = m['word_count']
     sentence_count = m['sentence_count']
     avg_sentence_len = m['avg_sentence_len']
-    m["lexical_diversity"] = m['lexical_diversity']
+    lexical_diversity = m['lexical_diversity']
     long_word_ratio = m['long_word_ratio']
     avg_word_len = m['avg_word_len']
 
