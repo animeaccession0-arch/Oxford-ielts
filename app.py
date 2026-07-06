@@ -17,7 +17,7 @@ if st.button("Get REAL Band Score"):
         
     try:
         genai.configure(api_key=api_key)
-        model = genai.GenerativeModel('gemini-1.5-flash-latest')
+        model = genai.GenerativeModel('gemini-2.0-flash')
         
         # ====== YE PROMPT USER KO NAHI DIKHEGA ======
         # YE SIRF BACKEND ME CHALEGA
