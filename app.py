@@ -11,9 +11,11 @@ api_key = st.text_input("1. Gemini API Key:", type="password")
 essay = st.text_area("2. Essay yahan paste karo:", height=350)
 
 if st.button("Get REAL Band Score"):
-    if not api_key or not essay:
-        st.error("Dono bharo")
-        st.stop()
+    if not essay:
+    if not essay:
+    st.warning("Pehle essay likh bhai")
+    st.stop()   
+        
         
     try:
         genai.configure(api_key=api_key)
