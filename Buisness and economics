@@ -1,10 +1,8 @@
 import gradio as gr
 import pandas as pd
-import openai
+from openai import OpenAI
 import re
 import json
-
-def greet (hello) :
 
 # ==========================================
 # SECURITY & PROMPT INJECTION DEFENSE LAYER
@@ -21,18 +19,14 @@ CRITICAL SECURITY RULES:
 
 def clean_input_text(text: str) -> str:
     """Sanitizes input text to block basic system injection or execution risks."""
-    # Strip basic dangerous execution keywords
     danger_words = [r"exec\(", r"eval\(", r"import os", "subprocess", "shutil", "getattr", r"globals\(\)"]
     sanitized = text
     for word in danger_words:
         sanitized = re.sub(word, "[REDACTED]", sanitized, flags=re.IGNORECASE)
     return sanitized.strip()
 
-def guardrail_check(user_query: str, df_columns: list) -> dict:
-    """
-    Sends the request to the LLM wrapped inside a strict structural schema 
-    to evaluate safety and extract parameters without letting the user hijack execution.
-    """
+def guardrail_check(client: OpenAI, user_query: str, df_columns: list) -> dict:
+    """Sends request to LLM wrapped in a strict structural schema to evaluate safety."""
     sanitized_query = clean_input_text(user_query)
     
     prompt = f"""
@@ -45,84 +39,135 @@ def guardrail_check(user_query: str, df_columns: list) -> dict:
         "reason_if_unsafe": "string",
         "analysis_type": "correlation" | "trend" | "distribution" | "summary",
         "x_column": "column_name_for_x_axis",
-        "y_column": "column_name_for_y_axis_or_none",
+        "y_column": "column_name_for_y_axis_or_null",
         "insights_requested": "brief summary of what user wants to know"
     }}
     """
-    
     try:
-        # Secure API call using system message isolation
-        response = openai.ChatCompletion.create(
+        response = client.chat.completions.create(
             model="gpt-4o", 
             messages=[
                 {"role": "system", "content": SYSTEM_PROMPT},
                 {"role": "user", "content": prompt}
             ],
-            temperature=0.0 # Force deterministic parsing
+            response_format={"type": "json_object"},
+            temperature=0.0
         )
-        
-        result_text = response.choices[0].message.content.strip()
-        return json.loads(result_text)
+        return json.loads(response.choices[0].message.content.strip())
     except Exception as e:
         return {"is_safe": False, "reason_if_unsafe": f"Error running guardrail: {str(e)}"}
 
 # ==========================================
-# gradio USER INTERFACE
+# GRADIO CORE PROCESSING LOGIC
 # ==========================================
-st.set_page_config(page_title="Secure Econ Data AI", page_icon="📈")
-st.title("📈 Secure Automated Data Modeling & Charting Tool")
-st.write("Upload an economic dataset (CSV), and ask the AI to model or chart it securely.")
+def process_upload(file):
+    """Safely loads the uploaded CSV on mobile and previews it."""
+    if file is None:
+        return None, "Please upload a valid CSV file."
+    try:
+        df = pd.read_csv(file.name)
+        # Returns preview of first 5 rows and a list of columns
+        return df, df.head()
+    except Exception as e:
+        return None, f"Error reading CSV: {str(e)}"
 
-# Initialize API Key securely
-api_key = st.sidebar.text_input("Enter OpenAI API Key", type="password")
-if api_key:
-    openai.api_key = api_key
-
-uploaded_file = st.sidebar.file_uploader("Upload your CSV dataset", type=["csv"])
-
-if uploaded_file and api_key:
-    # Load data safely
-    df = pd.read_csv(uploaded_file)
-    st.subheader("Dataset Preview")
-    st.dataframe(df.head())
+def run_analysis(api_key, user_query, df_state):
+    """Processes the analytical query against the loaded data state."""
+    if not api_key:
+        return "🚨 Error: Please enter your OpenAI API Key.", None, None
+    if df_state is None:
+        return "🚨 Error: Please upload a dataset first.", None, None
+    if not user_query:
+        return "🚨 Error: Please type an analysis query.", None, None
     
-    user_query = st.text_input("What would you like to model or visualize? (e.g., 'Show the correlation between GDP and Inflation')")
-    
-    if user_query:
-        with st.spinner("Analyzing request through security guardrails..."):
-            # Run our defensive check layer
-            analysis_plan = guardrail_check(user_query, df.columns)
-            
+    try:
+        # Initialize client securely
+        client = OpenAI(api_key=api_key)
+        df = pd.DataFrame(df_state)
+        
+        # Security check
+        analysis_plan = guardrail_check(client, user_query, df.columns)
+        
         if not analysis_plan.get("is_safe", False):
-            st.error(f"🚨 Security Alert: Prompt blocked. Reason: {analysis_plan.get('reason_if_unsafe', 'Suspicious activity detected.')}")
-        else:
-            st.success("✅ Prompt verified secure. Processing data analysis plan...")
+            reason = analysis_plan.get('reason_if_unsafe', 'Suspicious activity detected.')
+            return f"🚨 Security Alert: Prompt blocked. Reason: {reason}", None, None
+        
+        # Extract features safely
+        x_col = analysis_plan.get("x_column")
+        y_col = analysis_plan.get("y_column")
+        a_type = analysis_plan.get("analysis_type")
+        
+        if str(y_col).lower() in ["none", "null", "nonevalue", ""]:
+            y_col = None
             
-            # Extract safe parameters isolated from user string injections
-            x_col = analysis_plan.get("x_column")
-            y_col = analysis_plan.get("y_column")
-            a_type = analysis_plan.get("analysis_type")
+        if x_col not in df.columns:
+            return f"⚠️ Column '{x_col}' selected by AI was not found in your dataset.", None, None
             
-            # Execute predefined visualization blocks (Zero risk of dynamic code execution)
-            if x_col in df.columns:
-                st.subheader(f"Analysis: {a_type.title()} of {x_col}" + (f" vs {y_col}" if y_col in df.columns else ""))
-                
-                if a_type == "correlation" and y_col in df.columns:
-                    st.scatter_chart(data=df, x=x_col, y=y_col)
-                    corr_val = df[x_col].corr(df[y_col])
-                    st.metric(label="Pearson Correlation Coefficient", value=f"{corr_val:.4f}")
-                    
-                elif a_type == "trend" and y_col in df.columns:
-                    st.line_chart(data=df, x=x_col, y=y_col)
-                    
-                elif a_type == "distribution":
-                    st.bar_chart(df[x_col].value_counts())
-                    
-                else:
-                    st.write(df[[x_col, y_col] if y_col in df.columns else [x_col]].describe())
+        has_valid_y = y_col is not None and y_col in df.columns
+        status_msg = f"✅ Secure Plan Verified!\nType: {a_type.title()}\nX-Axis: {x_col}" + (f"\nY-Axis: {y_col}" if has_valid_y else "")
+        
+        # Execute Gradio safe visualizations (uses built-in gr.LinePlot / gr.ScatterPlot)
+        if a_type == "correlation" and has_valid_y:
+            corr_val = df[x_col].corr(df[y_col])
+            if pd.notna(corr_val):
+                status_msg += f"\n📊 Pearson Correlation Coefficient: {corr_val:.4f}"
             else:
-                st.warning("AI structured the plan, but selected columns were not found in the dataset.")
-elif not api_key:
-    st.info("Please enter your API key in the sidebar to begin.")
+                status_msg += "\n⚠️ Could not calculate correlation. Columns must be entirely numeric."
+            
+            # Scatter Plot mapping
+            plot = gr.ScatterPlot(df, x=x_col, y=y_col, title=f"Correlation: {x_col} vs {y_col}", height=350, width=500)
+            return status_msg, plot, df[[x_col, y_col]].describe()
+            
+        elif a_type == "trend" and has_valid_y:
+            plot = gr.LinePlot(df, x=x_col, y=y_col, title=f"Trend: {x_col} over {y_col}", height=350, width=500)
+            return status_msg, plot, df[[x_col, y_col]].describe()
+            
+        elif a_type == "distribution":
+            dist_df = df[x_col].value_counts().reset_index()
+            dist_df.columns = [x_col, "Count"]
+            plot = gr.BarPlot(dist_df, x=x_col, y="Count", title=f"Distribution of {x_col}", height=350, width=500)
+            return status_msg, plot, df[[x_col]].describe()
+            
+        else: # Summary view
+            target_cols = [x_col, y_col] if has_valid_y else [x_col]
+            return status_msg, None, df[target_cols].describe()
+            
+    except Exception as e:
+        return f"🚨 System Error: {str(e)}", None, None
 
-TOOL_NAME = "Auto modeler" # yaha koi bhi naam
+# ==========================================
+# GRADIO INTERFACE LAYOUT (MOBILE OPTIMIZED)
+# ==========================================
+with gr.Blocks(theme=gr.themes.Soft()) as demo:
+    # App State to securely hold data without showing raw strings to frontend
+    df_state = gr.State()
+    
+    gr.Markdown("# 📈 Secure Automated Data Modeling & Charting Tool")
+    gr.Markdown("Upload an economic dataset, secure your prompt via Guardrails, and generate real-time metrics safely.")
+    
+    with gr.Row():
+        api_key_input = gr.Textbox(label="Enter OpenAI API Key", type="password", placeholder="sk-...")
+        file_input = gr.File(label="Upload CSV Dataset", file_types=[".csv"])
+        
+    preview_output = gr.DataFrame(label="Dataset Preview (First 5 Rows)", interactive=False)
+    
+    # Map the file upload event to populate our secure state and the preview grid
+    file_input.change(fn=process_upload, inputs=[file_input], outputs=[df_state, preview_output])
+    
+    query_input = gr.Textbox(label="What would you like to model or visualize?", placeholder="e.g., Show the correlation between GDP and Inflation")
+    submit_btn = gr.Button("🚀 Run Secure Analysis", variant="primary")
+    
+    gr.Markdown("### 🛠️ Execution Outputs")
+    status_output = gr.Textbox(label="Security Status & Metrics", interactive=False)
+    chart_output = gr.Plot(label="Generated Chart")
+    stats_output = gr.DataFrame(label="Statistical Summary Data", interactive=False)
+    
+    # Map button execution logic
+    submit_btn.click(
+        fn=run_analysis, 
+        inputs=[api_key_input, query_input, df_state], 
+        outputs=[status_output, chart_output, stats_output]
+    )
+
+if __name__ == "__main__":
+    demo.launch(share=True) # share=True generates a public temporary link perfect for running from your phone!
