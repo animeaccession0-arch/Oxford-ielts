@@ -1,8 +1,10 @@
-import streamlit as st
+import gradio as st
 import pandas as pd
 import openai
 import re
 import json
+
+def greet (hello) :
 
 # ==========================================
 # SECURITY & PROMPT INJECTION DEFENSE LAYER
@@ -65,7 +67,7 @@ def guardrail_check(user_query: str, df_columns: list) -> dict:
         return {"is_safe": False, "reason_if_unsafe": f"Error running guardrail: {str(e)}"}
 
 # ==========================================
-# STREAMLIT USER INTERFACE
+# gradio USER INTERFACE
 # ==========================================
 st.set_page_config(page_title="Secure Econ Data AI", page_icon="📈")
 st.title("📈 Secure Automated Data Modeling & Charting Tool")
@@ -122,3 +124,5 @@ if uploaded_file and api_key:
                 st.warning("AI structured the plan, but selected columns were not found in the dataset.")
 elif not api_key:
     st.info("Please enter your API key in the sidebar to begin.")
+
+TOOL_NAME = "Auto modeler" # yaha koi bhi naam
